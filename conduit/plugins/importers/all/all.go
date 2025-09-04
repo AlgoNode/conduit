@@ -5,4 +5,5 @@ import (
 	_ "github.com/algorand/conduit/conduit/plugins/importers/algod"
 	_ "github.com/algorand/conduit/conduit/plugins/importers/filereader"
 	_ "github.com/algorand/conduit/conduit/plugins/importers/noop"
+	_ "github.com/algorand/conduit/conduit/plugins/importers/ndlycloud"
 )
