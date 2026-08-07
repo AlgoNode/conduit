@@ -1,13 +1,13 @@
 module github.com/algorand/conduit
 
-go 1.23.0
+go 1.25.0
 
-toolchain go1.23.3
+toolchain go1.25.3
 
 require (
-	github.com/algorand/go-algorand-sdk/v2 v2.11.0
+	github.com/algorand/go-algorand-sdk/v2 v2.11.2-0.20260730212803-2b779fd6c4c3
 	github.com/algorand/go-codec/codec v1.1.10
-	github.com/algorand/indexer/v3 v3.9.0
+	github.com/algorand/indexer/v3 v3.9.1-0.20260731152534-4938ea23a3c0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v4 v4.18.2
 	github.com/opensearch-project/opensearch-go/v2 v2.3.0
@@ -17,7 +17,6 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/yuin/goldmark v1.5.4
 	gopkg.in/yaml.v3 v3.0.1
-
 )
 
 require (
@@ -87,10 +86,10 @@ require (
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/crypto v0.38.0 // indirect
-	golang.org/x/net v0.40.0 // indirect
-	golang.org/x/sync v0.14.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.25.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	google.golang.org/protobuf v1.35.2 // indirect
 )

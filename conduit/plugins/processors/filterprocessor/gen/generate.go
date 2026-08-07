@@ -9,9 +9,9 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/algorand/conduit/conduit/plugins/processors/filterprocessor/gen/internal"
-
 	sdk "github.com/algorand/go-algorand-sdk/v2/types"
+
+	"github.com/algorand/conduit/conduit/plugins/processors/filterprocessor/gen/internal"
 )
 
 // ignoreTags are things that we specifically want to exclude from the output.
@@ -29,6 +29,16 @@ var ignoreTags = map[string]bool{
 	"lsig.l":            true,
 	"lsig.lmsig.subsig": true,
 	"lsig.msig.subsig":  true,
+	"pqsig":             true,
+	"lsig.pqsig":        true,
+	"pqsig.sch":         true,
+	"pqsig.slt":         true,
+	"pqsig.pk":          true,
+	"pqsig.sig":         true,
+	"lsig.pqsig.sch":    true,
+	"lsig.pqsig.slt":    true,
+	"lsig.pqsig.pk":     true,
+	"lsig.pqsig.sig":    true,
 	// no point in filtering on keys
 	"txn.votekey": true,
 	"txn.selkey":  true,
@@ -180,13 +190,19 @@ func recursiveTagFields(theStruct interface{}, ignoreTags map[string]bool, outpu
 		name := field.Name
 		numOutputsBefore := len(output)
 
-		// Lookup codec tag
+		// Lookup codec tag. Only the part before the first comma names the
+		// field, the rest are encoding options like "required" or "omitempty",
+		// which must not become part of the tag path.
 		tagValue, foundTag := field.Tag.Lookup("codec")
+		tagName := strings.Split(tagValue, ",")[0]
+		// A tag that only carries options (`codec:",omitempty"`) names nothing,
+		// so treat it as untagged.
+		foundTag = foundTag && tagName != ""
 
 		if field.Type.Kind() == reflect.Struct {
 			var passedTagLevel []string
 			if foundTag {
-				passedTagLevel = append(tagLevel, tagValue)
+				passedTagLevel = append(tagLevel, tagName)
 			} else {
 				passedTagLevel = tagLevel
 			}
@@ -196,15 +212,7 @@ func recursiveTagFields(theStruct interface{}, ignoreTags map[string]bool, outpu
 		// Add to output if there is a tag, and there were no subtags (i.e. this is a leaf)
 		foundSubtag := numOutputsBefore < len(output)
 		if foundTag && !foundSubtag {
-			vals := strings.Split(tagValue, ",")
-			// Get the first value (the one we care about)
-			tagValue = vals[0]
-			// If it is empty ignore it
-			if tagValue == "" {
-				continue
-			}
-
-			fullTag := strings.Join(append(tagLevel, tagValue), ".")
+			fullTag := strings.Join(append(tagLevel, tagName), ".")
 			if ignoreTags[fullTag] {
 				continue
 			}
@@ -235,7 +243,7 @@ func writeFieldsToFile(filepath string, fields map[string]internal.StructField) 
 		tags = append(tags, k)
 	}
 	sort.Strings(tags)
-	_, err = fout.WriteString(fmt.Sprintf("|%s|%s|\n", "filter tag", "transaction field"))
+	_, err = fmt.Fprintf(fout, "|%s|%s|\n", "filter tag", "transaction field")
 	if err != nil {
 		return err
 	}
@@ -244,7 +252,7 @@ func writeFieldsToFile(filepath string, fields map[string]internal.StructField) 
 		return err
 	}
 	for _, tag := range tags {
-		_, err = fout.WriteString(fmt.Sprintf("|%s|%s|\n", tag, fields[tag].FieldPath))
+		_, err = fmt.Fprintf(fout, "|%s|%s|\n", tag, fields[tag].FieldPath)
 		if err != nil {
 			return err
 		}
